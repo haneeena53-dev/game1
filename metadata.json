@@ -1,0 +1,8 @@
+{
+  "name": "لعبة الذاكرة الهادئة - Serene Memory",
+  "description": "لعبة ذاكرة كروت إبداعية وهادئة بألوان مريحة للعين، بمستويات صعوبة متعددة ومؤثرات صوتية لطيفة بـ Web Audio API وبدون مكتبات خارجية.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

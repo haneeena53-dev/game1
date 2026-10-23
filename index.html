@@ -1,0 +1,1924 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لعبة الذاكرة الهادئة | Serene Memory Game</title>
+  <meta name="description" content="لعبة كروت ذاكرة هادئة ومريحة للعين مع مستويات متعددة وثيمات متنوعة ومؤثرات صوتية لطيفة." />
+  <meta property="og:title" content="لعبة الذاكرة الهادئة | Serene Memory Game" />
+  <meta property="og:description" content="لعبة كروت ذاكرة هادئة ومريحة للعين مع مستويات متعددة وثيمات متنوعة ومؤثرات صوتية لطيفة." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <!-- خطوط عربية مريحة وحديثة (Tajawal و Cairo) مع fallback آمن لنظام التشغيل -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       متغيرات CSS (CSS Variables) - سهولة تخصيص الألوان والهوية البصرية
+       ========================================================================== */
+    :root {
+      /* تدرج خلفية الصفحة الهادئ */
+      --bg-gradient-start: #E8F1F2;
+      --bg-gradient-end: #DDEBE3;
+
+      /* لوحة الألوان الهادئة المريحة للعين */
+      --color-sky: #A8D0E6;       /* أزرق سماوي هادئ */
+      --color-sage: #B7D3C0;      /* أخضر مريمي */
+      --color-lavender: #CDC1E0;  /* لافندر ناعم */
+      --color-cream: #F6EFE6;     /* بيج كريمي دافئ */
+      --color-blush: #F2CFCF;     /* وردي باهت */
+
+      /* ألوان النصوص */
+      --color-text-main: #3E4C59;    /* رمادي مزرق غامق للنصوص الأساسية */
+      --color-text-muted: #647482;   /* رمادي مزرق متوسط للنصوص الفرعية */
+      --color-text-light: #8A9BA8;   /* رمادي فاتح للتفاصيل الدقيقة */
+
+      /* أسطح البطاقات والحاويات */
+      --color-surface: rgba(255, 255, 255, 0.82);
+      --color-surface-hover: rgba(255, 255, 255, 0.95);
+      --color-surface-border: rgba(62, 76, 89, 0.08);
+
+      /* ظهر الكارت (الوش المقفول) */
+      --card-back-bg: #ADCBB9;
+      --card-back-pattern: rgba(255, 255, 255, 0.28);
+      --card-back-symbol: rgba(255, 255, 255, 0.45);
+
+      /* وش الكارت (المفتوح) */
+      --card-front-bg: #FCF9F5;
+      --card-front-border: rgba(183, 211, 192, 0.35);
+
+      /* خصائص الكروت */
+      --card-radius: 18px;
+      --card-shadow: 0 6px 16px rgba(62, 76, 89, 0.07);
+      --card-shadow-hover: 0 10px 22px rgba(62, 76, 89, 0.12);
+      --card-glow-match: 0 0 20px rgba(183, 211, 192, 0.85);
+
+      /* أزرار التحكم وعناصر الإدخال */
+      --btn-primary-bg: #6E947F;
+      --btn-primary-hover: #5F8370;
+      --btn-primary-text: #FFFFFF;
+      --btn-secondary-bg: rgba(255, 255, 255, 0.85);
+      --btn-secondary-text: #3E4C59;
+      --btn-secondary-border: rgba(62, 76, 89, 0.12);
+
+      /* الخط العربي */
+      --font-family: 'Tajawal', 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* ==========================================================================
+       التنسيقات العامة والتهيئة
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: linear-gradient(145deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
+      color: var(--color-text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 16px;
+      position: relative;
+      overflow-x: hidden;
+      line-height: 1.5;
+    }
+
+    /* خلفية جمالية هادئة بنقشة دقيقة */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(rgba(168, 208, 230, 0.22) 1px, transparent 1px);
+      background-size: 32px 32px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app-container {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* أزرار وعناصر تفاعلية عامة */
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      outline: none;
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    button:focus-visible {
+      outline: 2px solid var(--color-sage);
+      outline-offset: 3px;
+    }
+
+    /* ==========================================================================
+       الشريط العلوي (Header)
+       ========================================================================== */
+    .app-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      padding: 8px 12px;
+    }
+
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--color-text-main);
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--color-sage);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.3rem;
+      box-shadow: 0 4px 10px rgba(183, 211, 192, 0.4);
+    }
+
+    .logo-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+      letter-spacing: -0.02em;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .icon-btn {
+      background: var(--color-surface);
+      border: 1px solid var(--color-surface-border);
+      color: var(--color-text-main);
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      box-shadow: var(--card-shadow);
+    }
+
+    .icon-btn:hover {
+      background: var(--color-surface-hover);
+      transform: translateY(-1px);
+    }
+
+    .icon-btn.active {
+      background: var(--color-sage);
+      color: #FFFFFF;
+    }
+
+    /* ==========================================================================
+       شاشة البداية (Start / Menu Screen)
+       ========================================================================== */
+    .screen {
+      width: 100%;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      animation: fadeIn 0.4s ease forwards;
+    }
+
+    .screen.active {
+      display: flex;
+    }
+
+    .welcome-card {
+      background: var(--color-surface);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--color-surface-border);
+      border-radius: 24px;
+      padding: 32px 28px;
+      width: 100%;
+      max-width: 580px;
+      box-shadow: 0 12px 32px rgba(62, 76, 89, 0.08);
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 30px;
+      background: var(--color-cream);
+      color: var(--color-text-muted);
+      font-size: 0.85rem;
+      font-weight: 500;
+      margin-bottom: 14px;
+    }
+
+    .welcome-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+      margin-bottom: 8px;
+    }
+
+    .welcome-desc {
+      font-size: 1rem;
+      color: var(--color-text-muted);
+      margin-bottom: 28px;
+      max-width: 420px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* تصنيف الاختيارات */
+    .selection-section {
+      text-align: right;
+      margin-bottom: 24px;
+      width: 100%;
+    }
+
+    .section-label {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .options-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .option-card {
+      background: rgba(255, 255, 255, 0.65);
+      border: 1.5px solid var(--color-surface-border);
+      border-radius: 16px;
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 4px;
+      position: relative;
+      transition: all 0.25s ease;
+    }
+
+    .option-card:hover {
+      background: #FFFFFF;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(62, 76, 89, 0.06);
+    }
+
+    .option-card.selected {
+      background: #FFFFFF;
+      border-color: var(--btn-primary-bg);
+      box-shadow: 0 4px 14px rgba(110, 148, 127, 0.18);
+    }
+
+    .option-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+    }
+
+    .option-subtitle {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    .theme-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    .theme-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    /* أفضل النتائج المسجلة في شاشة البداية */
+    .best-records-row {
+      display: flex;
+      justify-content: space-around;
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px dashed var(--color-surface-border);
+      border-radius: 16px;
+      padding: 12px;
+      margin-bottom: 24px;
+      font-size: 0.85rem;
+      color: var(--color-text-muted);
+    }
+
+    .best-record-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .best-record-val {
+      font-weight: 700;
+      color: var(--color-text-main);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* أزرار الإجراءات الرئيسية */
+    .btn-primary {
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-text);
+      padding: 14px 36px;
+      border-radius: 16px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      box-shadow: 0 8px 20px rgba(110, 148, 127, 0.28);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      max-width: 280px;
+    }
+
+    .btn-primary:hover {
+      background: var(--btn-primary-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(110, 148, 127, 0.35);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    .btn-secondary {
+      background: var(--btn-secondary-bg);
+      color: var(--btn-secondary-text);
+      border: 1px solid var(--btn-secondary-border);
+      padding: 10px 20px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      box-shadow: var(--card-shadow);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-secondary:hover {
+      background: #FFFFFF;
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       شاشة اللعب (Gameplay Screen & HUD)
+       ========================================================================== */
+    .game-hud {
+      width: 100%;
+      max-width: 680px;
+      background: var(--color-surface);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid var(--color-surface-border);
+      border-radius: 20px;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      box-shadow: var(--card-shadow);
+    }
+
+    .hud-metrics {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .hud-item {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .hud-label {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+      font-weight: 500;
+    }
+
+    .hud-value {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .hud-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hint-btn {
+      background: var(--color-cream);
+      border: 1px solid rgba(62, 76, 89, 0.08);
+      color: var(--color-text-main);
+      padding: 8px 14px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 8px rgba(62, 76, 89, 0.05);
+    }
+
+    .hint-btn:hover:not(:disabled) {
+      background: #FFFFFF;
+      transform: translateY(-1px);
+    }
+
+    .hint-btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+
+    /* ==========================================================================
+       شبكة الكروت (Cards Grid & 3D Flip)
+       ========================================================================== */
+    .cards-board-container {
+      width: 100%;
+      max-width: 720px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      perspective: 1000px;
+    }
+
+    .cards-grid {
+      display: grid;
+      gap: 12px;
+      width: 100%;
+      justify-content: center;
+      padding: 4px;
+    }
+
+    /* تخطيطات المستويات */
+    /* سهل: 4 أعمدة × 3 صفوف = 12 كارت */
+    .cards-grid.level-easy {
+      grid-template-columns: repeat(4, 1fr);
+      max-width: 540px;
+    }
+
+    /* متوسط: 4 أعمدة × 4 صفوف = 16 كارت */
+    .cards-grid.level-medium {
+      grid-template-columns: repeat(4, 1fr);
+      max-width: 560px;
+    }
+
+    /* صعب: 6 أعمدة × 4 صفوف = 24 كارت على الشاشات الكبيرة */
+    .cards-grid.level-hard {
+      grid-template-columns: repeat(6, 1fr);
+      max-width: 720px;
+    }
+
+    /* الكارت الواحد */
+    .card-item {
+      aspect-ratio: 1 / 1.15;
+      position: relative;
+      background: transparent;
+      perspective: 1000px;
+      cursor: pointer;
+      user-select: none;
+      border: none;
+      outline: none;
+      padding: 0;
+      border-radius: var(--card-radius);
+      animation: cardEntrance 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+      animation-delay: calc(var(--index, 0) * 35ms);
+    }
+
+    .card-item:focus-visible .card-inner {
+      box-shadow: 0 0 0 3px var(--color-sky), var(--card-shadow-hover);
+    }
+
+    .card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      text-align: center;
+      transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+      transform-style: preserve-3d;
+      border-radius: var(--card-radius);
+      box-shadow: var(--card-shadow);
+    }
+
+    .card-item:hover:not(.flipped):not(.matched) .card-inner {
+      transform: translateY(-3px);
+      box-shadow: var(--card-shadow-hover);
+    }
+
+    /* قلب الكارت */
+    .card-item.flipped .card-inner,
+    .card-item.matched .card-inner {
+      transform: rotateY(180deg);
+    }
+
+    /* وجه الكارت وظهر الكارت */
+    .card-face {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      -webkit-backface-visibility: hidden;
+      backface-visibility: hidden;
+      border-radius: var(--card-radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    /* ظهر الكارت (المقفول) - نقشة هندسية هادئة بـ CSS */
+    .card-back {
+      background-color: var(--card-back-bg);
+      background-image: 
+        radial-gradient(circle at 50% 50%, var(--card-back-pattern) 16%, transparent 17%),
+        radial-gradient(circle at 0% 0%, var(--card-back-pattern) 18%, transparent 19%),
+        radial-gradient(circle at 100% 100%, var(--card-back-pattern) 18%, transparent 19%),
+        radial-gradient(circle at 100% 0%, var(--card-back-pattern) 18%, transparent 19%),
+        radial-gradient(circle at 0% 100%, var(--card-back-pattern) 18%, transparent 19%);
+      background-size: 26px 26px;
+      border: 2px solid rgba(255, 255, 255, 0.45);
+      position: relative;
+    }
+
+    .card-back::after {
+      content: '✦';
+      position: absolute;
+      font-size: 1.2rem;
+      color: var(--card-back-symbol);
+    }
+
+    /* وش الكارت (المفتوح) */
+    .card-front {
+      background-color: var(--card-front-bg);
+      border: 2px solid var(--card-front-border);
+      transform: rotateY(180deg);
+      font-size: 2.3rem;
+      box-shadow: inset 0 0 16px rgba(232, 241, 242, 0.4);
+    }
+
+    .level-hard .card-front {
+      font-size: 1.85rem;
+    }
+
+    /* تأثير التطابق الناعم (Pulse + Glow) */
+    .card-item.matched .card-inner {
+      animation: matchPulse 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    }
+
+    .card-item.matched .card-front {
+      background-color: #F4FAF5;
+      border-color: var(--color-sage);
+      box-shadow: var(--card-glow-match);
+    }
+
+    /* تأثير عدم التطابق الخفيف (Gentle Shake) */
+    .card-item.shake .card-inner {
+      animation: mismatchShake 0.45s ease;
+    }
+
+    /* تأثير التلميح (Hint) */
+    .card-item.hint-active .card-inner {
+      transform: rotateY(180deg);
+      box-shadow: 0 0 18px rgba(168, 208, 230, 0.95);
+    }
+    .card-item.hint-active .card-front {
+      background: #F0F7FB;
+      border-color: var(--color-sky);
+    }
+
+    /* ==========================================================================
+       نافذة الفوز المنبثقة (Victory Modal) وتأثير البتلات
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(62, 76, 89, 0.35);
+      backdrop-filter: blur(6px);
+      -webkit-backdrop-filter: blur(6px);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      animation: fadeIn 0.35s ease;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .victory-modal {
+      background: #FFFFFF;
+      border-radius: 28px;
+      width: 100%;
+      max-width: 440px;
+      padding: 32px 28px;
+      text-align: center;
+      box-shadow: 0 20px 45px rgba(62, 76, 89, 0.15);
+      animation: scaleUp 0.45s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .modal-trophy {
+      font-size: 3rem;
+      margin-bottom: 6px;
+      display: inline-block;
+      animation: floatTrophy 3s ease-in-out infinite;
+    }
+
+    .victory-stars {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      font-size: 2rem;
+      margin-bottom: 12px;
+    }
+
+    .star-item {
+      color: #E2E8F0;
+      transition: all 0.4s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+
+    .star-item.earned {
+      color: #F4C430;
+      transform: scale(1.15);
+      text-shadow: 0 2px 10px rgba(244, 196, 48, 0.45);
+    }
+
+    .victory-title {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+      margin-bottom: 6px;
+    }
+
+    .victory-msg {
+      font-size: 0.95rem;
+      color: var(--color-text-muted);
+      margin-bottom: 24px;
+    }
+
+    .stats-summary {
+      background: var(--color-cream);
+      border-radius: 18px;
+      padding: 14px 18px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stat-box-label {
+      font-size: 0.75rem;
+      color: var(--color-text-muted);
+    }
+
+    .stat-box-val {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--color-text-main);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .new-best-badge {
+      display: none;
+      background: var(--color-blush);
+      color: #7D4242;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+      animation: pulseBadge 1.8s infinite;
+    }
+
+    .modal-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+    }
+
+    /* بتلات الاسترخاء الصاعدة عند الفوز (Petals Celebration) */
+    .petals-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 998;
+      overflow: hidden;
+    }
+
+    .petal {
+      position: absolute;
+      bottom: -20px;
+      border-radius: 50% 0 50% 50%;
+      pointer-events: none;
+      opacity: 0.8;
+      animation: floatUpward linear forwards;
+    }
+
+    /* ==========================================================================
+       إمكانية الوصول (Accessibility) ورسائل قارئ الشاشة
+       ========================================================================== */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ==========================================================================
+       رسوم الحركة (Keyframe Animations)
+       ========================================================================== */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleUp {
+      from { opacity: 0; transform: scale(0.92); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes cardEntrance {
+      from { opacity: 0; transform: translateY(14px) scale(0.94); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    @keyframes matchPulse {
+      0% { transform: rotateY(180deg) scale(1); }
+      40% { transform: rotateY(180deg) scale(1.07); }
+      100% { transform: rotateY(180deg) scale(1); }
+    }
+
+    @keyframes mismatchShake {
+      0%, 100% { transform: rotateY(180deg) translateX(0); }
+      20%, 60% { transform: rotateY(180deg) translateX(-4px); }
+      40%, 80% { transform: rotateY(180deg) translateX(4px); }
+    }
+
+    @keyframes floatTrophy {
+      0%, 100% { transform: translateY(0) rotate(0); }
+      50% { transform: translateY(-6px) rotate(3deg); }
+    }
+
+    @keyframes pulseBadge {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes floatUpward {
+      0% {
+        transform: translateY(0) rotate(0deg) scale(0.8);
+        opacity: 0;
+      }
+      10% {
+        opacity: 0.85;
+      }
+      90% {
+        opacity: 0.85;
+      }
+      100% {
+        transform: translateY(-110vh) rotate(360deg) scale(1.1);
+        opacity: 0;
+      }
+    }
+
+    /* احترام تفضيل المستخدم لتقليل الحركة */
+    @media (prefers-reduced-motion: reduce) {
+      *, ::before, ::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      .card-item {
+        animation: none !important;
+      }
+    }
+
+    /* ==========================================================================
+       التصميم المتجاوب للشاشات الصغيرة (Responsive Design)
+       ========================================================================== */
+    @media (max-width: 640px) {
+      body {
+        padding: 10px;
+      }
+      .welcome-card {
+        padding: 24px 18px;
+        border-radius: 20px;
+      }
+      .welcome-title {
+        font-size: 1.65rem;
+      }
+      .options-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+      .theme-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+      }
+      .option-card {
+        padding: 10px 4px;
+      }
+      .option-title {
+        font-size: 0.82rem;
+      }
+      .theme-icon {
+        font-size: 1.35rem;
+      }
+      .game-hud {
+        padding: 10px 14px;
+        border-radius: 16px;
+        margin-bottom: 14px;
+      }
+      .hud-metrics {
+        gap: 14px;
+      }
+      .hud-value {
+        font-size: 1.1rem;
+      }
+      .cards-grid {
+        gap: 8px;
+      }
+      /* على الموبايل في المستوى الصعب: 4 أعمدة في 6 صفوف لسهولة اللمس */
+      .cards-grid.level-hard {
+        grid-template-columns: repeat(4, 1fr);
+        max-width: 360px;
+      }
+      .card-front {
+        font-size: 1.85rem;
+      }
+      .level-hard .card-front {
+        font-size: 1.55rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- حاوية الإشعارات الصوتية لقارئات الشاشة -->
+  <div id="srAnnouncer" class="sr-only" aria-live="polite"></div>
+
+  <!-- حاوية بتلات الفوز الهادئة -->
+  <div id="petalsCanvas" class="petals-canvas" aria-hidden="true"></div>
+
+  <div class="app-container">
+
+    <!-- الشريط العلوي -->
+    <header class="app-header">
+      <div class="logo-group">
+        <div class="logo-icon" aria-hidden="true">🌿</div>
+        <h1 class="logo-title">لعبة الذاكرة الهادئة</h1>
+      </div>
+      <div class="header-controls">
+        <button id="btnSoundToggle" class="icon-btn" aria-label="تشغيل الصوت أو كتمه" title="الصوت">
+          <span id="soundIcon" aria-hidden="true">🔇</span>
+        </button>
+        <button id="btnExportHtml" class="icon-btn" aria-label="تحميل اللعبة كملف HTML مستقل" title="تحميل كملف HTML مستقل">
+          <span aria-hidden="true">💾</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- ======================================================================
+         شاشة البداية (Start Menu)
+         ====================================================================== -->
+    <main id="startScreen" class="screen active">
+      <div class="welcome-card">
+        <span class="hero-badge">لحظة استرخاء وتركيز</span>
+        <h2 class="welcome-title">نشّط ذاكرتك بهدوء</h2>
+        <p class="welcome-desc">اقلب الكروت، واكتشف الأزواج المتطابقة، واستمتع بتجربة بصرية وصوتية مريحة للأعصاب.</p>
+
+        <!-- اختيار مستوى الصعوبة -->
+        <section class="selection-section" aria-labelledby="diffHeading">
+          <div id="diffHeading" class="section-label">
+            <span>مستوى الصعوبة</span>
+            <span id="diffDesc" class="option-subtitle">سهل (6 أزواج)</span>
+          </div>
+          <div class="options-grid" role="radiogroup" aria-labelledby="diffHeading">
+            <button type="button" class="option-card selected" data-level="easy" role="radio" aria-checked="true">
+              <span class="option-title">سهل</span>
+              <span class="option-subtitle">4×3 (6 أزواج)</span>
+            </button>
+            <button type="button" class="option-card" data-level="medium" role="radio" aria-checked="false">
+              <span class="option-title">متوسط</span>
+              <span class="option-subtitle">4×4 (8 أزواج)</span>
+            </button>
+            <button type="button" class="option-card" data-level="hard" role="radio" aria-checked="false">
+              <span class="option-title">صعب</span>
+              <span class="option-subtitle">6×4 (12 زوج)</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- اختيار مجموعة الرموز (الثيم) -->
+        <section class="selection-section" aria-labelledby="themeHeading">
+          <div id="themeHeading" class="section-label">
+            <span>مجموعة الرموز</span>
+            <span id="themeName" class="option-subtitle">الطبيعة 🌿</span>
+          </div>
+          <div class="options-grid theme-grid" role="radiogroup" aria-labelledby="themeHeading">
+            <button type="button" class="option-card selected" data-theme="nature" role="radio" aria-checked="true" aria-label="ثيم الطبيعة">
+              <span class="theme-icon" aria-hidden="true">🌿</span>
+              <span class="option-title">الطبيعة</span>
+            </button>
+            <button type="button" class="option-card" data-theme="animals" role="radio" aria-checked="false" aria-label="ثيم الحيوانات">
+              <span class="theme-icon" aria-hidden="true">🐱</span>
+              <span class="option-title">الحيوانات</span>
+            </button>
+            <button type="button" class="option-card" data-theme="fruits" role="radio" aria-checked="false" aria-label="ثيم الفواكه">
+              <span class="theme-icon" aria-hidden="true">🍎</span>
+              <span class="option-title">الفواكه</span>
+            </button>
+            <button type="button" class="option-card" data-theme="space" role="radio" aria-checked="false" aria-label="ثيم الفضاء">
+              <span class="theme-icon" aria-hidden="true">🪐</span>
+              <span class="option-title">الفضاء</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- سجل أفضل النتائج للمستوى المختار -->
+        <div class="best-records-row" aria-label="أفضل نتائج سابقة">
+          <div class="best-record-item">
+            <span>أفضل حركات:</span>
+            <span id="bestMovesDisplay" class="best-record-val">-</span>
+          </div>
+          <div class="best-record-item">
+            <span>أفضل وقت:</span>
+            <span id="bestTimeDisplay" class="best-record-val">-</span>
+          </div>
+          <div class="best-record-item">
+            <span>أعلى تقييم:</span>
+            <span id="bestStarsDisplay" class="best-record-val">-</span>
+          </div>
+        </div>
+
+        <button id="btnStartGame" class="btn-primary" type="button">
+          <span>ابدأ اللعب</span>
+          <span aria-hidden="true">←</span>
+        </button>
+      </div>
+    </main>
+
+    <!-- ======================================================================
+         شاشة اللعب (Gameplay Screen)
+         ====================================================================== -->
+    <main id="gameScreen" class="screen">
+      <!-- شريط معلومات اللعبة (HUD) -->
+      <div class="game-hud">
+        <div class="hud-metrics">
+          <div class="hud-item">
+            <span class="hud-label">الحركات</span>
+            <span id="movesCounter" class="hud-value">0</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">الوقت</span>
+            <span id="timerDisplay" class="hud-value">00:00</span>
+          </div>
+          <div class="hud-item">
+            <span class="hud-label">المتبقي</span>
+            <span id="remainingPairs" class="hud-value">0</span>
+          </div>
+        </div>
+
+        <div class="hud-actions">
+          <button id="btnHint" class="hint-btn" title="كشف زوج واحد لمدة ثانية ونصف (مرتان فقط)">
+            <span aria-hidden="true">💡</span>
+            <span id="hintCountText">تلميح (2)</span>
+          </button>
+          <button id="btnRestartGame" class="icon-btn" title="إعادة التوزيع والبدء من جديد" aria-label="إعادة المحاولة">
+            <span aria-hidden="true">🔄</span>
+          </button>
+          <button id="btnBackToMenu" class="icon-btn" title="العودة للقائمة الرئيسية" aria-label="الرجوع للقائمة">
+            <span aria-hidden="true">🏠</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- رقعة الكروت -->
+      <div class="cards-board-container">
+        <div id="cardsGrid" class="cards-grid" role="grid" aria-label="شبكة كروت الذاكرة"></div>
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ======================================================================
+       شاشة الفوز اللطيفة (Victory Modal)
+       ====================================================================== -->
+  <div id="victoryModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="victory-modal">
+      <div class="modal-trophy" aria-hidden="true">🌸</div>
+      <div id="victoryStars" class="victory-stars" aria-label="تقييم النجوم">
+        <span class="star-item" data-star="1">★</span>
+        <span class="star-item" data-star="2">★</span>
+        <span class="star-item" data-star="3">★</span>
+      </div>
+      <h3 id="modalTitle" class="victory-title">رائع جداً! مبروك الفوز</h3>
+      <p id="modalDesc" class="victory-msg">لقد أنهيت جميع البطاقات بنجاح وبتركيز رائع.</p>
+
+      <div id="newBestBadge" class="new-best-badge">🎉 رقم قياسي جديد لهذا المستوى!</div>
+
+      <div class="stats-summary">
+        <div class="stat-box">
+          <span class="stat-box-label">عدد الحركات</span>
+          <span id="finalMoves" class="stat-box-val">0</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-box-label">الوقت المستغرق</span>
+          <span id="finalTime" class="stat-box-val">00:00</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-box-label">أفضل حركات سابقة</span>
+          <span id="finalPrevBestMoves" class="stat-box-val">-</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-box-label">أفضل وقت سابق</span>
+          <span id="finalPrevBestTime" class="stat-box-val">-</span>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="btnPlayAgain" class="btn-primary" type="button">
+          <span>العب مرة أخرى</span>
+        </button>
+        <button id="btnModalMenu" class="btn-secondary" type="button">
+          <span>العودة للقائمة الرئيسية</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================================
+       منطق اللعبة البرمجي (JavaScript كامل ومستقل)
+       ====================================================================== -->
+  <script>
+    /**
+     * لعبة الذاكرة الهادئة - Serene Memory Cards Game
+     * كود نظيف، منظم، ومستقل تماماً بدون أي مكتبات خارجية
+     */
+
+    // 1. تعريف ثيمات الرموز التعبيرية ومستويات اللعب
+    const THEMES = {
+      nature: {
+        id: 'nature',
+        name: 'الطبيعة',
+        icon: '🌿',
+        emojis: ['🌿', '🌸', '🍃', '🌙', '☀️', '🌊', '🦋', '🐚', '🌻', '🌴', '🍄', '🌺', '🍀', '🌼']
+      },
+      animals: {
+        id: 'animals',
+        name: 'الحيوانات',
+        icon: '🐱',
+        emojis: ['🐱', '🐰', '🦊', '🐼', '🐨', '🦉', '🐢', '🐬', '🦔', '🐝', '🦌', '🦁', '🐧', '🐳']
+      },
+      fruits: {
+        id: 'fruits',
+        name: 'الفواكه',
+        icon: '🍎',
+        emojis: ['🍎', '🍇', '🍉', '🍑', '🍋', '🍓', '🥝', '🍒', '🥑', '🍍', '🥭', '🍐', '🍌', '🍊']
+      },
+      space: {
+        id: 'space',
+        name: 'الفضاء',
+        icon: '🪐',
+        emojis: ['🪐', '⭐', '🌍', '🚀', '🌙', '☄️', '🛰️', '🌌', '🛸', '☀️', '🔭', '👾', '✨', '🌠']
+      }
+    };
+
+    const LEVELS = {
+      easy: {
+        id: 'easy',
+        name: 'سهل',
+        pairsCount: 6,
+        gridClass: 'level-easy',
+        // معايير النجوم: عدد الحركات
+        threeStarMaxMoves: 8,
+        twoStarMaxMoves: 13
+      },
+      medium: {
+        id: 'medium',
+        name: 'متوسط',
+        pairsCount: 8,
+        gridClass: 'level-medium',
+        threeStarMaxMoves: 12,
+        twoStarMaxMoves: 19
+      },
+      hard: {
+        id: 'hard',
+        name: 'صعب',
+        pairsCount: 12,
+        gridClass: 'level-hard',
+        threeStarMaxMoves: 20,
+        twoStarMaxMoves: 31
+      }
+    };
+
+    // 2. حالة اللعبة العامة (Game State)
+    const state = {
+      currentLevel: 'easy',
+      currentTheme: 'nature',
+      cards: [],
+      flippedCards: [],
+      matchedPairsCount: 0,
+      moves: 0,
+      timerSeconds: 0,
+      timerInterval: null,
+      isGameActive: false,
+      isLocked: false,
+      hintsRemaining: 2,
+      soundEnabled: false,
+      audioCtx: null
+    };
+
+    // 3. عناصر واجهة المستخدم (DOM Elements)
+    const dom = {
+      srAnnouncer: document.getElementById('srAnnouncer'),
+      petalsCanvas: document.getElementById('petalsCanvas'),
+      startScreen: document.getElementById('startScreen'),
+      gameScreen: document.getElementById('gameScreen'),
+      btnStartGame: document.getElementById('btnStartGame'),
+      btnSoundToggle: document.getElementById('btnSoundToggle'),
+      soundIcon: document.getElementById('soundIcon'),
+      btnExportHtml: document.getElementById('btnExportHtml'),
+      cardsGrid: document.getElementById('cardsGrid'),
+      movesCounter: document.getElementById('movesCounter'),
+      timerDisplay: document.getElementById('timerDisplay'),
+      remainingPairs: document.getElementById('remainingPairs'),
+      btnHint: document.getElementById('btnHint'),
+      hintCountText: document.getElementById('hintCountText'),
+      btnRestartGame: document.getElementById('btnRestartGame'),
+      btnBackToMenu: document.getElementById('btnBackToMenu'),
+      victoryModal: document.getElementById('victoryModal'),
+      modalTitle: document.getElementById('modalTitle'),
+      modalDesc: document.getElementById('modalDesc'),
+      victoryStars: document.getElementById('victoryStars'),
+      finalMoves: document.getElementById('finalMoves'),
+      finalTime: document.getElementById('finalTime'),
+      finalPrevBestMoves: document.getElementById('finalPrevBestMoves'),
+      finalPrevBestTime: document.getElementById('finalPrevBestTime'),
+      newBestBadge: document.getElementById('newBestBadge'),
+      btnPlayAgain: document.getElementById('btnPlayAgain'),
+      btnModalMenu: document.getElementById('btnModalMenu'),
+      bestMovesDisplay: document.getElementById('bestMovesDisplay'),
+      bestTimeDisplay: document.getElementById('bestTimeDisplay'),
+      bestStarsDisplay: document.getElementById('bestStarsDisplay'),
+      diffDesc: document.getElementById('diffDesc'),
+      themeName: document.getElementById('themeName')
+    };
+
+    // ==========================================================================
+    // محرك الصوت الهادئ بـ Web Audio API (بدون أي ملفات خارجية)
+    // ==========================================================================
+    function getAudioContext() {
+      if (!state.audioCtx) {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (AudioContextClass) {
+          state.audioCtx = new AudioContextClass();
+        }
+      }
+      if (state.audioCtx && state.audioCtx.state === 'suspended') {
+        state.audioCtx.resume();
+      }
+      return state.audioCtx;
+    }
+
+    /**
+     * عزف نغمات هادئة مولدة حسابياً
+     */
+    function playTone(freq, type = 'sine', duration = 0.15, gainValue = 0.08, startTimeOffset = 0) {
+      if (!state.soundEnabled) return;
+      try {
+        const ctx = getAudioContext();
+        if (!ctx) return;
+        const now = ctx.currentTime + startTimeOffset;
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, now);
+
+        gain.gain.setValueAtTime(gainValue, now);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc.start(now);
+        osc.stop(now + duration);
+      } catch (e) {
+        console.warn('Audio playback ignored', e);
+      }
+    }
+
+    // صوت قلب الكارت (نغمة خفيفة دافئة)
+    function playFlipSound() {
+      playTone(480, 'sine', 0.12, 0.06);
+    }
+
+    // صوت التطابق الرائع (تناغم ناعم ثلاثي النغمات)
+    function playMatchSound() {
+      playTone(523.25, 'sine', 0.28, 0.07, 0.00); // C5
+      playTone(659.25, 'sine', 0.32, 0.06, 0.08); // E5
+      playTone(783.99, 'sine', 0.38, 0.05, 0.16); // G5
+    }
+
+    // صوت عدم التطابق (نقرة خافتة هادئة غير مزعجة)
+    function playMismatchSound() {
+      playTone(280, 'triangle', 0.14, 0.04, 0.00);
+      playTone(240, 'triangle', 0.16, 0.03, 0.07);
+    }
+
+    // صوت التلميح (رنين لطيف)
+    function playHintSound() {
+      playTone(700, 'sine', 0.2, 0.06, 0.0);
+      playTone(880, 'sine', 0.25, 0.05, 0.1);
+    }
+
+    // صوت الفوز الهادئ (أكورد ناعم ومبهج)
+    function playVictorySound() {
+      const chord = [349.23, 440.00, 523.25, 698.46, 880.00]; // F major soothing arpeggio
+      chord.forEach((freq, i) => {
+        playTone(freq, 'sine', 0.6, 0.07, i * 0.12);
+      });
+    }
+
+    // نقرة زر عامة خفيفة
+    function playClickSound() {
+      playTone(600, 'sine', 0.04, 0.03);
+    }
+
+    // ==========================================================================
+    // إدارة التخزين المحلي (Safe LocalStorage)
+    // ==========================================================================
+    function getStoredItem(key, fallback = null) {
+      try {
+        const item = localStorage.getItem(key);
+        return item ? JSON.parse(item) : fallback;
+      } catch (err) {
+        console.warn('LocalStorage Read Error:', err);
+        return fallback;
+      }
+    }
+
+    function setStoredItem(key, val) {
+      try {
+        localStorage.setItem(key, JSON.stringify(val));
+      } catch (err) {
+        console.warn('LocalStorage Write Error:', err);
+      }
+    }
+
+    // حفظ واسترجاع أفضل نتيجة لكل مستوى
+    function getBestRecordForLevel(levelId) {
+      return getStoredItem(`serene_memory_best_${levelId}`, null);
+    }
+
+    function saveBestRecordForLevel(levelId, record) {
+      const existing = getBestRecordForLevel(levelId);
+      let isNewRecord = false;
+
+      if (!existing) {
+        setStoredItem(`serene_memory_best_${levelId}`, record);
+        isNewRecord = true;
+      } else {
+        // الأفضلية لأقل عدد حركات، وإذا تساوت الحركات فأقل وقت
+        if (record.moves < existing.moves || (record.moves === existing.moves && record.seconds < existing.seconds)) {
+          setStoredItem(`serene_memory_best_${levelId}`, record);
+          isNewRecord = true;
+        }
+      }
+      return { isNewRecord, prevBest: existing };
+    }
+
+    // ==========================================================================
+    // إمكانية الوصول وقارئ الشاشة
+    // ==========================================================================
+    function announce(message) {
+      if (dom.srAnnouncer) {
+        dom.srAnnouncer.textContent = message;
+      }
+    }
+
+    // ==========================================================================
+    // خوارزمية Fisher-Yates للخلط العشوائي الحقيقي
+    // ==========================================================================
+    function shuffleArray(arr) {
+      const result = [...arr];
+      for (let i = result.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [result[i], result[j]] = [result[j], result[i]];
+      }
+      return result;
+    }
+
+    // تنسيق الثواني لصيغة دقيقة:ثانية (00:00)
+    function formatTime(totalSeconds) {
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    // ==========================================================================
+    // تهيئة وبدء اللعبة
+    // ==========================================================================
+    function initApp() {
+      // استعادة إعداد الصوت المحفوظ
+      const savedSound = getStoredItem('serene_memory_sound', false);
+      state.soundEnabled = Boolean(savedSound);
+      updateSoundUI();
+
+      // تحديث شاشة البداية بالقيم الافتراضية
+      updateBestDisplay();
+      bindEvents();
+    }
+
+    function bindEvents() {
+      // أزرار اختيار المستوى
+      document.querySelectorAll('[data-level]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          playClickSound();
+          document.querySelectorAll('[data-level]').forEach(b => {
+            b.classList.remove('selected');
+            b.setAttribute('aria-checked', 'false');
+          });
+          btn.classList.add('selected');
+          btn.setAttribute('aria-checked', 'true');
+          state.currentLevel = btn.dataset.level;
+          dom.diffDesc.textContent = `${LEVELS[state.currentLevel].name} (${LEVELS[state.currentLevel].pairsCount} أزواج)`;
+          updateBestDisplay();
+        });
+      });
+
+      // أزرار اختيار الثيم
+      document.querySelectorAll('[data-theme]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          playClickSound();
+          document.querySelectorAll('[data-theme]').forEach(b => {
+            b.classList.remove('selected');
+            b.setAttribute('aria-checked', 'false');
+          });
+          btn.classList.add('selected');
+          btn.setAttribute('aria-checked', 'true');
+          state.currentTheme = btn.dataset.theme;
+          dom.themeName.textContent = `${THEMES[state.currentTheme].name} ${THEMES[state.currentTheme].icon}`;
+        });
+      });
+
+      // زر تشغيل/كتم الصوت
+      dom.btnSoundToggle.addEventListener('click', () => {
+        state.soundEnabled = !state.soundEnabled;
+        setStoredItem('serene_memory_sound', state.soundEnabled);
+        updateSoundUI();
+        if (state.soundEnabled) {
+          playClickSound();
+          announce('تم تشغيل المؤثرات الصوتية');
+        } else {
+          announce('تم كتم المؤثرات الصوتية');
+        }
+      });
+
+      // زر تصدير اللعبة كملف HTML مستقل كامل
+      dom.btnExportHtml.addEventListener('click', exportStandaloneHtml);
+
+      // زر بدء اللعبة
+      dom.btnStartGame.addEventListener('click', () => {
+        playClickSound();
+        startGame();
+      });
+
+      // أزرار شاشة اللعب
+      dom.btnRestartGame.addEventListener('click', () => {
+        playClickSound();
+        startGame();
+      });
+
+      dom.btnBackToMenu.addEventListener('click', () => {
+        playClickSound();
+        backToMenu();
+      });
+
+      dom.btnHint.addEventListener('click', useHint);
+
+      // أزرار النافذة المنبثقة
+      dom.btnPlayAgain.addEventListener('click', () => {
+        playClickSound();
+        closeVictoryModal();
+        startGame();
+      });
+
+      dom.btnModalMenu.addEventListener('click', () => {
+        playClickSound();
+        closeVictoryModal();
+        backToMenu();
+      });
+
+      // إغلاق النافذة بـ Escape
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && dom.victoryModal.classList.contains('active')) {
+          closeVictoryModal();
+          backToMenu();
+        }
+      });
+    }
+
+    function updateSoundUI() {
+      if (state.soundEnabled) {
+        dom.soundIcon.textContent = '🔊';
+        dom.btnSoundToggle.classList.add('active');
+        dom.btnSoundToggle.title = 'الصوت: مفعّل (انقر للكتم)';
+      } else {
+        dom.soundIcon.textContent = '🔇';
+        dom.btnSoundToggle.classList.remove('active');
+        dom.btnSoundToggle.title = 'الصوت: مكتوم (انقر للتشغيل)';
+      }
+    }
+
+    function updateBestDisplay() {
+      const best = getBestRecordForLevel(state.currentLevel);
+      if (best) {
+        dom.bestMovesDisplay.textContent = `${best.moves} حركة`;
+        dom.bestTimeDisplay.textContent = formatTime(best.seconds);
+        dom.bestStarsDisplay.textContent = '★'.repeat(best.stars);
+      } else {
+        dom.bestMovesDisplay.textContent = 'لا يوجد بعد';
+        dom.bestTimeDisplay.textContent = '-';
+        dom.bestStarsDisplay.textContent = '-';
+      }
+    }
+
+    // ==========================================================================
+    // بدء جولة جديدة (Start Game)
+    // ==========================================================================
+    function startGame() {
+      clearInterval(state.timerInterval);
+
+      const level = LEVELS[state.currentLevel];
+      const theme = THEMES[state.currentTheme];
+
+      // إعادة تصفير المتغيرات
+      state.isGameActive = true;
+      state.isLocked = false;
+      state.moves = 0;
+      state.timerSeconds = 0;
+      state.matchedPairsCount = 0;
+      state.flippedCards = [];
+      state.hintsRemaining = 2;
+
+      // تحديث عدادات الشاشة
+      dom.movesCounter.textContent = '0';
+      dom.timerDisplay.textContent = '00:00';
+      dom.remainingPairs.textContent = level.pairsCount;
+      updateHintButtonUI();
+
+      // تجهيز الكروت
+      generateDeck(level.pairsCount, theme.emojis);
+
+      // التبديل لشاشة اللعب
+      dom.startScreen.classList.remove('active');
+      dom.gameScreen.classList.add('active');
+
+      // تشغيل المؤقت الزمني
+      state.timerInterval = setInterval(() => {
+        state.timerSeconds++;
+        dom.timerDisplay.textContent = formatTime(state.timerSeconds);
+      }, 1000);
+
+      announce(`بدأت اللعبة بمستوى ${level.name}، وثيم ${theme.name}. عدد الأزواج المطلوب إيجادها هو ${level.pairsCount}.`);
+    }
+
+    function backToMenu() {
+      clearInterval(state.timerInterval);
+      state.isGameActive = false;
+      clearPetals();
+      updateBestDisplay();
+      dom.gameScreen.classList.remove('active');
+      dom.startScreen.classList.add('active');
+      announce('عدت إلى القائمة الرئيسية.');
+    }
+
+    // ==========================================================================
+    // إنشاء الكروت وتوزيعها في الشبكة
+    // ==========================================================================
+    function generateDeck(pairsCount, emojiList) {
+      // اختيار رموز عشوائية بعدد الأزواج
+      const shuffledEmojis = shuffleArray(emojiList).slice(0, pairsCount);
+
+      // مضاعفة الرموز لعمل الأزواج
+      const deck = [];
+      shuffledEmojis.forEach((emoji, index) => {
+        deck.push({ id: `card-${index}-a`, pairId: index, emoji: emoji });
+        deck.push({ id: `card-${index}-b`, pairId: index, emoji: emoji });
+      });
+
+      // خلط الكروت باستخدام Fisher-Yates
+      state.cards = shuffleArray(deck);
+
+      // تهيئة الشبكة في DOM
+      dom.cardsGrid.innerHTML = '';
+      dom.cardsGrid.className = `cards-grid ${LEVELS[state.currentLevel].gridClass}`;
+
+      state.cards.forEach((cardData, idx) => {
+        const cardElem = document.createElement('button');
+        cardElem.type = 'button';
+        cardElem.className = 'card-item';
+        cardElem.id = cardData.id;
+        cardElem.dataset.pairId = cardData.pairId;
+        cardElem.dataset.index = idx;
+        cardElem.style.setProperty('--index', idx);
+        cardElem.setAttribute('role', 'gridcell');
+        cardElem.setAttribute('aria-label', `كارت ${idx + 1}، مقلوب`);
+        cardElem.tabIndex = 0;
+
+        cardElem.innerHTML = `
+          <div class="card-inner">
+            <div class="card-face card-back" aria-hidden="true"></div>
+            <div class="card-face card-front" aria-hidden="true">${cardData.emoji}</div>
+          </div>
+        `;
+
+        // أحداث النقر والكيبورد
+        cardElem.addEventListener('click', () => onCardClicked(cardElem, cardData));
+        cardElem.addEventListener('keydown', (e) => onCardKeydown(e, cardElem, idx));
+
+        dom.cardsGrid.appendChild(cardElem);
+      });
+    }
+
+    // ==========================================================================
+    // دعم التنقل بلوحة المفاتيح عبر الشبكة (Keyboard Navigation)
+    // ==========================================================================
+    function onCardKeydown(e, cardElem, currentIndex) {
+      const level = state.currentLevel;
+      let columns = 4;
+      if (level === 'hard') {
+        columns = window.innerWidth <= 640 ? 4 : 6;
+      }
+      const totalCards = state.cards.length;
+      let targetIndex = null;
+
+      if (e.key === 'ArrowRight') {
+        // في نمط RTL، السهم الأيمن ينقل للكارت السابق منطقياً أو حسب الاتجاه
+        targetIndex = currentIndex > 0 ? currentIndex - 1 : totalCards - 1;
+      } else if (e.key === 'ArrowLeft') {
+        targetIndex = currentIndex < totalCards - 1 ? currentIndex + 1 : 0;
+      } else if (e.key === 'ArrowDown') {
+        targetIndex = currentIndex + columns < totalCards ? currentIndex + columns : currentIndex;
+      } else if (e.key === 'ArrowUp') {
+        targetIndex = currentIndex - columns >= 0 ? currentIndex - columns : currentIndex;
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        cardElem.click();
+        return;
+      }
+
+      if (targetIndex !== null && targetIndex !== currentIndex) {
+        e.preventDefault();
+        const targetCard = dom.cardsGrid.children[targetIndex];
+        if (targetCard) targetCard.focus();
+      }
+    }
+
+    // ==========================================================================
+    // منطق قلب الكارت والتحقق من التطابق (Core Gameplay Logic)
+    // ==========================================================================
+    function onCardClicked(cardElem, cardData) {
+      // منع الضغط أثناء قفل الحركة أو لو الكارت مفتوح أصلاً أو متطابق
+      if (state.isLocked) return;
+      if (cardElem.classList.contains('flipped') || cardElem.classList.contains('matched')) return;
+
+      // فتح الكارت
+      cardElem.classList.add('flipped');
+      cardElem.setAttribute('aria-label', `كارت مفتوح: ${cardData.emoji}`);
+      playFlipSound();
+
+      state.flippedCards.push({ elem: cardElem, data: cardData });
+
+      // إذا كان هذا هو الكارت الأول
+      if (state.flippedCards.length === 1) {
+        announce(`فتحت كارت ${cardData.emoji}`);
+        return;
+      }
+
+      // إذا كان هذا هو الكارت الثاني: زيادة عداد الحركات وفحص التطابق
+      if (state.flippedCards.length === 2) {
+        state.moves++;
+        dom.movesCounter.textContent = state.moves;
+        state.isLocked = true; // قفل الشبكة لمنع قلب كارت ثالث
+
+        const [card1, card2] = state.flippedCards;
+        const isMatch = card1.data.pairId === card2.data.pairId;
+
+        if (isMatch) {
+          handleMatch(card1, card2);
+        } else {
+          handleMismatch(card1, card2);
+        }
+      }
+    }
+
+    // عند حدوث تطابق صحيح
+    function handleMatch(card1, card2) {
+      setTimeout(() => {
+        card1.elem.classList.add('matched');
+        card2.elem.classList.add('matched');
+
+        card1.elem.setAttribute('aria-label', `متطابق: ${card1.data.emoji}`);
+        card2.elem.setAttribute('aria-label', `متطابق: ${card2.data.emoji}`);
+
+        playMatchSound();
+        announce(`تطابق رائع! الرمز هو ${card1.data.emoji}`);
+
+        state.matchedPairsCount++;
+        const remaining = LEVELS[state.currentLevel].pairsCount - state.matchedPairsCount;
+        dom.remainingPairs.textContent = remaining;
+
+        state.flippedCards = [];
+        state.isLocked = false;
+
+        // التحقق من اكتمال اللعبة
+        if (remaining === 0) {
+          endGame();
+        }
+      }, 350);
+    }
+
+    // عند عدم التطابق
+    function handleMismatch(card1, card2) {
+      setTimeout(() => {
+        // حركة الاهتزاز الهادئة
+        card1.elem.classList.add('shake');
+        card2.elem.classList.add('shake');
+        playMismatchSound();
+      }, 400);
+
+      setTimeout(() => {
+        // إزالة الكروت وإغلاقها
+        card1.elem.classList.remove('flipped', 'shake');
+        card2.elem.classList.remove('flipped', 'shake');
+
+        card1.elem.setAttribute('aria-label', 'كارت مقلوب');
+        card2.elem.setAttribute('aria-label', 'كارت مقلوب');
+
+        state.flippedCards = [];
+        state.isLocked = false;
+      }, 1050);
+    }
+
+    // ==========================================================================
+    // وضع التلميح (Hint Mode - كشف زوج لمدة 1.5 ثانية)
+    // ==========================================================================
+    function useHint() {
+      if (!state.isGameActive || state.isLocked || state.hintsRemaining <= 0) return;
+
+      // العثور على زوج غير متطابق وغير مفتوح
+      const unmatchedCards = state.cards.filter((card) => {
+        const elem = document.getElementById(card.id);
+        return elem && !elem.classList.contains('matched') && !elem.classList.contains('flipped');
+      });
+
+      if (unmatchedCards.length < 2) return;
+
+      // تجميع الكروت المتبقية حسب pairId
+      const pairMap = {};
+      unmatchedCards.forEach(card => {
+        if (!pairMap[card.pairId]) pairMap[card.pairId] = [];
+        pairMap[card.pairId].push(card);
+      });
+
+      // اختيار أول زوج مكتمل متبقي
+      let targetPair = null;
+      for (const pairId in pairMap) {
+        if (pairMap[pairId].length === 2) {
+          targetPair = pairMap[pairId];
+          break;
+        }
+      }
+
+      if (!targetPair) return;
+
+      state.hintsRemaining--;
+      updateHintButtonUI();
+      playHintSound();
+
+      const elem1 = document.getElementById(targetPair[0].id);
+      const elem2 = document.getElementById(targetPair[1].id);
+
+      state.isLocked = true;
+      elem1.classList.add('hint-active');
+      elem2.classList.add('hint-active');
+
+      announce(`تلميح: تم كشف الزوج ${targetPair[0].emoji} مؤقتاً.`);
+
+      setTimeout(() => {
+        elem1.classList.remove('hint-active');
+        elem2.classList.remove('hint-active');
+        state.isLocked = false;
+      }, 1500);
+    }
+
+    function updateHintButtonUI() {
+      dom.hintCountText.textContent = `تلميح (${state.hintsRemaining})`;
+      if (state.hintsRemaining <= 0) {
+        dom.btnHint.disabled = true;
+      } else {
+        dom.btnHint.disabled = false;
+      }
+    }
+
+    // ==========================================================================
+    // نهاية اللعبة وشاشة الفوز (End Game & Victory)
+    // ==========================================================================
+    function endGame() {
+      clearInterval(state.timerInterval);
+      state.isGameActive = false;
+
+      const level = LEVELS[state.currentLevel];
+      const moves = state.moves;
+      const seconds = state.timerSeconds;
+
+      // حساب النجوم بناء على مستوى الصعوبة
+      let stars = 1;
+      if (moves <= level.threeStarMaxMoves) {
+        stars = 3;
+      } else if (moves <= level.twoStarMaxMoves) {
+        stars = 2;
+      }
+
+      // حفظ النتيجة والتحقق إذا كانت رقماً قياسياً جديداً
+      const { isNewRecord, prevBest } = saveBestRecordForLevel(state.currentLevel, {
+        moves: moves,
+        seconds: seconds,
+        stars: stars,
+        date: new Date().toISOString()
+      });
+
+      // تشغيل بتلات الفوز الهادئة وصوت الفوز
+      setTimeout(() => {
+        playVictorySound();
+        createFloatingPetals();
+        showVictoryModal(moves, seconds, stars, isNewRecord, prevBest);
+      }, 500);
+    }
+
+    function showVictoryModal(moves, seconds, stars, isNewRecord, prevBest) {
+      dom.finalMoves.textContent = moves;
+      dom.finalTime.textContent = formatTime(seconds);
+
+      if (prevBest) {
+        dom.finalPrevBestMoves.textContent = `${prevBest.moves} حركة`;
+        dom.finalPrevBestTime.textContent = formatTime(prevBest.seconds);
+      } else {
+        dom.finalPrevBestMoves.textContent = 'أول محاولة!';
+        dom.finalPrevBestTime.textContent = '-';
+      }
+
+      if (isNewRecord) {
+        dom.newBestBadge.style.display = 'inline-block';
+      } else {
+        dom.newBestBadge.style.display = 'none';
+      }
+
+      // إظهار النجوم بحركة لطيفة
+      const starElements = dom.victoryStars.querySelectorAll('.star-item');
+      starElements.forEach((starElem, i) => {
+        starElem.classList.remove('earned');
+        setTimeout(() => {
+          if (i < stars) {
+            starElem.classList.add('earned');
+          }
+        }, (i + 1) * 220);
+      });
+
+      dom.victoryModal.classList.add('active');
+      announce(`مبروك الفوز! أنهيت اللعبة في ${moves} حركة، ووقت ${formatTime(seconds)}. حصلت على ${stars} من 3 نجوم.`);
+    }
+
+    function closeVictoryModal() {
+      dom.victoryModal.classList.remove('active');
+      clearPetals();
+    }
+
+    // ==========================================================================
+    // بتلات وفقاعات الاسترخاء الناعمة (Floating Petals)
+    // ==========================================================================
+    function createFloatingPetals() {
+      clearPetals();
+      const colors = ['#F2CFCF', '#CDC1E0', '#B7D3C0', '#A8D0E6', '#F6EFE6'];
+      const totalPetals = 28;
+
+      for (let i = 0; i < totalPetals; i++) {
+        const petal = document.createElement('div');
+        petal.className = 'petal';
+
+        const size = Math.floor(Math.random() * 14) + 12; // 12px to 26px
+        const left = Math.random() * 100; // 0% to 100%
+        const duration = Math.random() * 4 + 4.5; // 4.5s to 8.5s
+        const delay = Math.random() * 2.5; // 0s to 2.5s
+        const color = colors[Math.floor(Math.random() * colors.length)];
+
+        petal.style.width = `${size}px`;
+        petal.style.height = `${size * 1.3}px`;
+        petal.style.left = `${left}%`;
+        petal.style.backgroundColor = color;
+        petal.style.animationDuration = `${duration}s`;
+        petal.style.animationDelay = `${delay}s`;
+
+        dom.petalsCanvas.appendChild(petal);
+      }
+    }
+
+    function clearPetals() {
+      if (dom.petalsCanvas) {
+        dom.petalsCanvas.innerHTML = '';
+      }
+    }
+
+    // ==========================================================================
+    // تنزيل كود اللعبة بالكامل كملف مستقل بنقرة واحدة (HTML Standalone Export)
+    // ==========================================================================
+    function exportStandaloneHtml() {
+      playClickSound();
+      try {
+        const fullHtml = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+        const blob = new Blob([fullHtml], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'serene-memory-game.html';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        announce('تم تحميل ملف اللعبة بنجاح.');
+      } catch (err) {
+        console.error('Export failed', err);
+      }
+    }
+
+    // تهيئة التطبيق بمجرد اكتمال تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', initApp);
+    // وإذا كانت الصفحة محملة بالفعل
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      initApp();
+    }
+  </script>
+</body>
+</html>
